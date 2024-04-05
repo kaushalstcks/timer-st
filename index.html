@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YelTimer</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+
+    .timer {
+      background-color: #f0f0f0;
+      border-radius: 20px;
+      box-shadow: -10px -10px 20px #d1d1d1, 10px 10px 20px #ffffff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .display {
+      font-size: 3em;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 10px;
+      background-color: #f0f0f0;
+      box-shadow: inset -5px -5px 10px #d1d1d1, inset 5px 5px 10px #ffffff;
+      color: #3d5af1; /* Blue accent color */
+    }
+
+    .controls button {
+      margin: 10px;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      border-radius: 10px;
+      border: none;
+      background-color: #f0f0f0;
+      box-shadow: -5px -5px 10px #d1d1d1, 5px 5px 10px #ffffff;
+      color: #3d5af1; /* Blue accent color */
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .controls button:hover {
+      box-shadow: -2px -2px 5px #d1d1d1, 2px 2px 5px #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="timer">
+    <div class="display">00:00:00</div>
+    <div class="controls">
+      <button id="startStop">Start</button>
+      <button id="lap">Lap</button>
+      <button id="restart">Restart</button>
+    </div>
+    <ul class="laps"></ul>
+  </div>
+  <script>
+    let interval;
+    let running = false;
+    let startTime;
+    let lapNumber = 1;
+
+    const display = document.querySelector('.display');
+    const startStopBtn = document.getElementById('startStop');
+    const lapBtn = document.getElementById('lap');
+    const restartBtn = document.getElementById('restart');
+    const lapsList = document.querySelector('.laps');
+
+    function formatTime(ms) {
+      const date = new Date(ms);
+      return date.toISOString().substr(11, 8);
+    }
+
+    function startStop() {
+      if (running) {
+        clearInterval(interval);
+        running = false;
+        startStopBtn.textContent = 'Start';
+      } else {
+        startTime = Date.now() - (lapNumber > 1 ? lapNumber - 1 : 0) * 1000 * 60 * 60;
+        interval = setInterval(updateDisplay, 1000);
+        running = true;
+        startStopBtn.textContent = 'Stop';
+      }
+    }
+
+    function updateDisplay() {
+      const elapsed = Date.now() - startTime;
+      display.textContent = formatTime(elapsed);
+    }
+
+    function lap() {
+      const lapTime = Date.now() - startTime;
+      const lapItem = document.createElement('li');
+      lapItem.textContent = `Lap ${lapNumber}: ${formatTime(lapTime)}`;
+      lapsList.appendChild(lapItem);
+      lapNumber++;
+    }
+
+    function restart() {
+      clearInterval(interval);
+      running = false;
+      display.textContent = '00:00:00';
+      startStopBtn.textContent = 'Start';
+      lapNumber = 1;
+      lapsList.innerHTML = '';
+    }
+
+    startStopBtn.addEventListener('click', startStop);
+    lapBtn.addEventListener('click', lap);
+    restartBtn.addEventListener('click', restart);
+  </script>
+</body>
+</html>
